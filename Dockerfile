@@ -1,6 +1,6 @@
 FROM            ubuntu:14.04
 
-RUN             apt-get update
+RUN             apt-get -y update
 RUN             apt-get install -y nodejs npm curl git
 RUN             ln -s /usr/bin/nodejs /usr/bin/node
 
@@ -19,6 +19,18 @@ ENV             CATALINA_HOME /usr/local/tomcat
 ENV             PATH $CATALINA_HOME/bin:$PATH
 RUN             mkdir -p "$CATALINA_HOME"
 WORKDIR         $CATALINA_HOME
+
+# Install Maven
+
+RUN             sudo mkdir -p /usr/local/apache-maven
+RUN             wget http://ftp.wayne.edu/apache/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz
+RUN             sudo mv apache-maven-3.3.3-bin.tar.gz /usr/local/apache-maven
+RUN             sudo tar -xzvf /usr/local/apache-maven/apache-maven-3.3.3-bin.tar.gz -C /usr/local/apache-maven/
+RUN             sudo update-alternatives --install /usr/bin/mvn mvn /usr/local/apache-maven/apache-maven-3.3.3/bin/mvn 1
+RUN             echo 'export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.3' >> ~/.bashrc
+RUN             echo 'export MAVEN_OPTS="-Xms256m -Xmx512m"' >> ~/.bashrc
+RUN             echo 'export M2_HOME=/usr/local/apache-maven-3.3.3' >> ~/.bashrc
+RUN             echo "Maven is on version `mvn -v`"
 
 # see https://www.apache.org/dist/tomcat/tomcat-8/KEYS
 RUN             gpg --keyserver pool.sks-keyservers.net --recv-keys \
